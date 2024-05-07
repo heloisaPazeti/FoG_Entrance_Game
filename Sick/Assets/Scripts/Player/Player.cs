@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class Player : MonoBehaviour
 {
@@ -21,9 +22,27 @@ public class Player : MonoBehaviour
     private bool canDash = true;
     private bool isDashing = false;
 
+    [Header("Health & Wealth")]
+    [SerializeField] private float life;
+    [SerializeField] private float defense;
+    [SerializeField] private float invunerableCoolDown;
+    private bool isInvulnerable = false;
+    private float money;
+
+    [Header("Atack")]
+    [SerializeField] private Transform shotSpawn;
+    [SerializeField] private GameObject shotPrefab;
+    [SerializeField] private int ammoQuant;
+    [SerializeField] private float shotCooldown;
+    [SerializeField] private float damage;
+    [SerializeField] private float shotSpeed;
+    private bool canShot = true;
+    private Queue<GameObject> ammo = new Queue<GameObject>();
+
     [Header("Components")]
     private Animator anim;
     private Rigidbody2D rig;
+    private SpriteRenderer sprite;
 
     #region "Start And Update"
 
@@ -31,6 +50,9 @@ public class Player : MonoBehaviour
     {
         rig = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
+        sprite = GetComponent<SpriteRenderer>();
+
+        SetUpAmmo();
     }
 
     private void Update()
@@ -43,6 +65,9 @@ public class Player : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Z) && (canDash || !isJumping))
             StartCoroutine(Dash());
+
+        if (Input.GetKeyDown(KeyCode.X) && canShot && ammo.Count > 0)
+            StartCoroutine(Shot());
     }
 
     #endregion
@@ -58,10 +83,12 @@ public class Player : MonoBehaviour
         if (rig.velocity.x > 0)
         {
             anim.SetFloat("Horizontal", 1);
+            sprite.flipX = false;
         }
         else if (rig.velocity.x < 0)
         {
             anim.SetFloat("Horizontal", -1);
+            sprite.flipX = true;
         }
         else
         {
@@ -88,7 +115,6 @@ public class Player : MonoBehaviour
 
         canDash = false;
         isDashing = true;
-        anim.SetBool("isDashing", isDashing);
         rig.gravityScale = 0;
 
         if (rig.velocity.x > 0)
@@ -101,9 +127,82 @@ public class Player : MonoBehaviour
         yield return new WaitForSeconds(dashDuration);
         rig.gravityScale = originalGravity;
         isDashing = false;
-        anim.SetBool("isDashing", isDashing);
         yield return new WaitForSeconds(dashCoolDown);
         canDash = true;
+    }
+
+    #endregion
+
+    #region "Damage"
+
+    public void TakeDamage(float damage)
+    {
+        if (damage < defense || isInvulnerable)
+            return;
+
+        life -= damage - defense;
+        if (life <= 0)
+            Die();
+        else
+            StartCoroutine(Invulnerable());
+
+    }
+
+    public IEnumerator Invulnerable()
+    {
+        isInvulnerable = true;
+        yield return new WaitForSeconds(invunerableCoolDown);
+        isInvulnerable = false;
+    }
+
+    private void Die()
+    {
+        // Death Anim ... if I had one
+        Destroy(gameObject);
+        GameManager.instance.GameOver();
+    }
+
+    #endregion
+
+    #region "Rewards"
+
+    public void GetReward(float amount)
+    {
+        money += amount;
+
+        if (money > GameManager.instance.moneyNeeded)
+            GameManager.instance.WinLevel();
+    }
+
+    #endregion
+
+    #region "Atack"
+
+    private void SetUpAmmo()
+    {
+        for (int i = 0; i < ammoQuant; i++)
+        {
+            GameObject shot = Instantiate(shotPrefab);
+            shot.SetActive(false);
+            ammo.Enqueue(shot);
+        }
+    }
+
+    private IEnumerator Shot()
+    {
+        canShot = false;
+        GameObject shot = ammo.Dequeue();
+        shot.SetActive(true);
+        shot.GetComponent<Shot>().SetUp(rig.velocity.normalized, shotSpawn.position, damage, shotSpeed);
+
+        yield return new WaitForSeconds(shotCooldown);
+        canShot = true;
+    }
+
+    public void EnqueueShot(GameObject shot)
+    {
+        shot.SetActive(false);
+        ammo.Enqueue(shot);
     }
 
     #endregion
@@ -118,34 +217,11 @@ public class Player : MonoBehaviour
             isJumping = false;
             anim.SetBool("isJumping", isJumping);
         }
-        else if (collision.gameObject.CompareTag("Walls"))
-        {
-            rig.velocity = new Vector2(0, rig.velocity.y);
-            anim.SetBool("WallJump", true);
-            qtdeJump = 0;
-
-            ContactPoint2D contact = collision.GetContact(0);
-
-            //player (otherCollider) is to the right of the wall
-            if (contact.otherCollider.gameObject.transform.position.x > contact.point.x)
-            {
-                anim.SetFloat("WallJumpValue", -1);
-            }
-            else
-            {
-                anim.SetFloat("WallJumpValue", 1);
-            }
-
-        }
     }
 
     private void OnCollisionExit2D(Collision2D collision)
     {
-        if (collision.gameObject.CompareTag("Walls"))
-        {
-            anim.SetBool("WallJump", false);
-        }
-        else if (collision.gameObject.CompareTag("Floor"))
+        if (collision.gameObject.CompareTag("Floor"))
         {
             isJumping = true;
         }

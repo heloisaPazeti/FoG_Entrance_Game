@@ -6,6 +6,9 @@ TagManager:
   tags:
   - Floor
   - Walls
+  - SpawnPoint
+  - Enemy
+  - PlayerShot
   layers:
   - Default
   - TransparentFX
