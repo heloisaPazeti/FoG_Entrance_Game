@@ -30,7 +30,6 @@ public class Player : MonoBehaviour
     private float money;
 
     [Header("Atack")]
-    [SerializeField] private Transform shotSpawn;
     [SerializeField] private GameObject shotPrefab;
     [SerializeField] private int ammoQuant;
     [SerializeField] private float shotCooldown;
@@ -190,10 +189,17 @@ public class Player : MonoBehaviour
 
     private IEnumerator Shot()
     {
+        int direction;
+
+        if(sprite.flipX)
+            direction = -1;
+        else
+            direction = 1;
+
         canShot = false;
         GameObject shot = ammo.Dequeue();
         shot.SetActive(true);
-        shot.GetComponent<Shot>().SetUp(rig.velocity.normalized, shotSpawn.position, damage, shotSpeed);
+        shot.GetComponent<Shot>().SetUp(direction, this.transform.position, damage, shotSpeed);
 
         yield return new WaitForSeconds(shotCooldown);
         canShot = true;
