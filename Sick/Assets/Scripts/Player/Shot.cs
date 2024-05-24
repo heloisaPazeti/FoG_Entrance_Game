@@ -12,10 +12,12 @@ public class Shot : MonoBehaviour
 
     [Header("References")]
     private Animator anim;
+    private SpriteRenderer sprite;
 
     private void Awake()
     {
         anim = GetComponent<Animator>();
+        sprite = GetComponent<SpriteRenderer>();
     }
 
     public void SetUp(Vector2 direction, Vector3 position, float damage, float speed)
@@ -24,6 +26,9 @@ public class Shot : MonoBehaviour
         this.damage = damage;
         this.speed = speed;
         this.transform.position = position;
+
+        if(direction.x < 0)
+            sprite.flipX = true;
     }
 
     private void FixedUpdate()
@@ -39,8 +44,9 @@ public class Shot : MonoBehaviour
         anim.SetBool("destroy", false);
     }
 
-    private void OnCollisionEnter2D(Collision2D collision)
+    private void OnTriggerEnter2D(Collider2D other) 
     {
-       StartCoroutine(Destroy());
+        if(!other.gameObject.CompareTag("Player"))
+            StartCoroutine(Destroy());
     }
 }

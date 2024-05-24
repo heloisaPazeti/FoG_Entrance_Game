@@ -7,6 +7,7 @@ public class Player : MonoBehaviour
 {
     [Header("Walk Properties")]
     [SerializeField] private float velocity;
+    private int direction = 1;
 
     [Header("Jump properties")]
     [SerializeField] private float wallSlidingSpeed;
@@ -84,11 +85,13 @@ public class Player : MonoBehaviour
         {
             anim.SetFloat("Horizontal", 1);
             sprite.flipX = false;
+            direction = 1;
         }
         else if (rig.velocity.x < 0)
         {
             anim.SetFloat("Horizontal", -1);
             sprite.flipX = true;
+            direction = -1;
         }
         else
         {
@@ -193,7 +196,7 @@ public class Player : MonoBehaviour
         canShot = false;
         GameObject shot = ammo.Dequeue();
         shot.SetActive(true);
-        shot.GetComponent<Shot>().SetUp(rig.velocity.normalized, shotSpawn.position, damage, shotSpeed);
+        shot.GetComponent<Shot>().SetUp(new Vector2(direction, 0), transform.position, damage, shotSpeed);
 
         yield return new WaitForSeconds(shotCooldown);
         canShot = true;

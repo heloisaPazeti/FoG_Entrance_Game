@@ -374,8 +374,9 @@
 -analyzer:"C:/Program Files/Unity/Hub/Editor/2022.3.13f1/Editor/Data/Tools/Unity.SourceGenerators/Unity.Properties.SourceGenerator.dll"
 -analyzer:"C:/Program Files/Unity/Hub/Editor/2022.3.13f1/Editor/Data/Tools/Unity.SourceGenerators/Unity.SourceGenerators.dll"
 "Assets/Scripts/Camera/CameraMotor.cs"
+"Assets/Scripts/Controllers/GameManager.cs"
+"Assets/Scripts/Controllers/UiController.cs"
 "Assets/Scripts/Enemies/Enemies.cs"
-"Assets/Scripts/GameManager.cs"
 "Assets/Scripts/Player/Player.cs"
 "Assets/Scripts/Player/Shot.cs"
 -langversion:9.0

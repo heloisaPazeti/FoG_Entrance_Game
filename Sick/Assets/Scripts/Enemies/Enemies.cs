@@ -80,11 +80,14 @@ public class Enemies : MonoBehaviour
             GameManager.instance.HurtPlayer(damage);
         }
 
-        if (collision.gameObject.CompareTag("PlayerShot"))
-        {
-            TakeDamage(collision.gameObject.GetComponent<Shot>().damage);
-        }
+        
             
+    }
+
+    protected void OnTriggerEnter2D(Collider2D other) 
+    {
+        if (other.gameObject.CompareTag("PlayerShot"))
+            TakeDamage(other.gameObject.GetComponent<Shot>().damage);
     }
 
     #endregion
