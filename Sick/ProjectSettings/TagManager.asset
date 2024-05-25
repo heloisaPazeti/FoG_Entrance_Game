@@ -9,6 +9,8 @@ TagManager:
   - SpawnPoint
   - Enemy
   - PlayerShot
+  - Trap
+  - Door
   layers:
   - Default
   - TransparentFX

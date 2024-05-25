@@ -1,11 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 public class Shot : MonoBehaviour
 {
-    [HideInInspector] public float damage = 0;
+    [HideInInspector] public int damage = 0;
 
     private Vector2 direction = new Vector2(0,0);
     private float speed = 0;
@@ -20,7 +21,7 @@ public class Shot : MonoBehaviour
         sprite = GetComponent<SpriteRenderer>();
     }
 
-    public void SetUp(Vector2 direction, Vector3 position, float damage, float speed)
+    public void SetUp(Vector2 direction, Vector3 position, int damage, float speed)
     {
         this.direction = direction;
         this.damage = damage;
@@ -46,7 +47,7 @@ public class Shot : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other) 
     {
-        if(!other.gameObject.CompareTag("Player"))
-            StartCoroutine(Destroy());
+        if((!other.gameObject.CompareTag("Player")) && (!other.gameObject.CompareTag("Door")))
+            StartCoroutine(Destroy());       
     }
 }

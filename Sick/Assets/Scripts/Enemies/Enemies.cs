@@ -10,12 +10,12 @@ public class Enemies : MonoBehaviour
     private int direction = 1;
 
     [Header("Life And Points")]
-    [SerializeField] protected float life;
-    [SerializeField] protected float defense;
+    [SerializeField] protected int life;
+    [SerializeField] protected int defense;
     [SerializeField] protected float reward;
 
     [Header("Damage")]
-    [SerializeField] protected float damage;
+    [SerializeField] protected int damage;
 
     [Header("References")]
     private Rigidbody2D rig;
@@ -44,7 +44,7 @@ public class Enemies : MonoBehaviour
 
     #region "Damage"
 
-    protected void TakeDamage(float damage)
+    protected void TakeDamage(int damage)
     {
         if (damage < defense)
             return;    

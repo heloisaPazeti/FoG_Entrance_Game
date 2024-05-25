@@ -1,11 +1,15 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.SceneManagement;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
     public static GameManager instance;
+
+    [Header("UI References")]
+    [SerializeField] private UiController uiController;
 
     [Header("Player References")]
     [SerializeField] private GameObject playerPrefab;
@@ -13,7 +17,8 @@ public class GameManager : MonoBehaviour
     private Player player;
 
     [Header("Level")]
-    [HideInInspector] public float moneyNeeded;
+    private LevelController lvlController;
+    [HideInInspector] public bool finishLevel; 
 
 
     #region "Setup"
@@ -29,6 +34,11 @@ public class GameManager : MonoBehaviour
 
         InstantiatePlayer();
         GetLevelSetup();
+
+        lvlController = FindAnyObjectByType<LevelController>();
+        uiController.UpdateLife(player.life);
+        uiController.UpdateMoney(player.money);
+        uiController.SetMinQuota(lvlController.totalMoney);
     }
 
     private void InstantiatePlayer()
@@ -42,18 +52,28 @@ public class GameManager : MonoBehaviour
         //Gets Level Setup
     }
 
+    private void OnLoadNewScene()
+    {
+        lvlController = FindAnyObjectByType<LevelController>();
+    }
+
     #endregion
 
     #region "Player"
 
-    public void HurtPlayer(float damage)
+    public void HurtPlayer(int damage)
     {
         player.TakeDamage(damage);
+        uiController.UpdateLife(player.life);
     }
 
     public void GrantReward(float amount)
     {
         player.GetReward(amount);
+        uiController.UpdateMoney(player.money);
+
+        if (player.money >= lvlController.totalMoney)
+            WinLevel();
     }
 
     public void EnqueueShot(GameObject shot)
@@ -63,19 +83,28 @@ public class GameManager : MonoBehaviour
 
     #endregion
 
+    #region "Level Management"
 
-    #region "End Level"
+    public void SetLevelController(LevelController lvlC)
+    {
+        lvlController = lvlC;
+    }
 
     public void GameOver()
     {
-        Debug.Log("Ou nous... Anyways.");
+        uiController.SetGameOver(true);
     }
 
     public void WinLevel()
     {
-        Debug.Log("Ou yeah... Anyways.");
-        // Opens Door to Next Level
+        finishLevel = true;
     }
+
+    public void GoToNextLevel()
+    {
+        SceneManager.LoadScene(lvlController.nextLevel);
+    }
+
 
 
     #endregion

@@ -24,18 +24,18 @@ public class Player : MonoBehaviour
     private bool isDashing = false;
 
     [Header("Health & Wealth")]
-    [SerializeField] private float life;
-    [SerializeField] private float defense;
+    [SerializeField] private int defense;
     [SerializeField] private float invunerableCoolDown;
+    [HideInInspector] public float money;
+    public int life;
     private bool isInvulnerable = false;
-    private float money;
 
     [Header("Atack")]
     [SerializeField] private Transform shotSpawn;
     [SerializeField] private GameObject shotPrefab;
     [SerializeField] private int ammoQuant;
     [SerializeField] private float shotCooldown;
-    [SerializeField] private float damage;
+    [SerializeField] private int damage;
     [SerializeField] private float shotSpeed;
     private bool canShot = true;
     private Queue<GameObject> ammo = new Queue<GameObject>();
@@ -138,7 +138,7 @@ public class Player : MonoBehaviour
 
     #region "Damage"
 
-    public void TakeDamage(float damage)
+    public void TakeDamage(int damage)
     {
         if (damage < defense || isInvulnerable)
             return;
@@ -172,9 +172,6 @@ public class Player : MonoBehaviour
     public void GetReward(float amount)
     {
         money += amount;
-
-        if (money > GameManager.instance.moneyNeeded)
-            GameManager.instance.WinLevel();
     }
 
     #endregion
@@ -220,6 +217,9 @@ public class Player : MonoBehaviour
             isJumping = false;
             anim.SetBool("isJumping", isJumping);
         }
+
+        if (collision.gameObject.CompareTag("Trap"))
+            Die();
     }
 
     private void OnCollisionExit2D(Collision2D collision)
@@ -228,6 +228,16 @@ public class Player : MonoBehaviour
         {
             isJumping = true;
         }
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.gameObject.CompareTag("Door"))
+        {
+            if(GameManager.instance.finishLevel)
+                GameManager.instance.GoToNextLevel();
+        }
+            
     }
 
     #endregion
