@@ -52,6 +52,3 @@ public class CameraMotor : MonoBehaviour
         }
     }
 }
-
-
-// SÓ TESTANDO UMA COISA
