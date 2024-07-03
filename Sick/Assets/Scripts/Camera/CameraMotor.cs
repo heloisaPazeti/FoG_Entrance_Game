@@ -51,4 +51,4 @@ public class CameraMotor : MonoBehaviour
             transform.position += new Vector3(delta.x, delta.y, 0);
         }
     }
-}
+} // HEY
